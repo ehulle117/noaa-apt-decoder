@@ -23,7 +23,7 @@ def build_cron_line(pass_info: dict) -> str:
     log = REPO_DIR / "passes" / f"{basename}.log"
     return (
         f"{local_start.minute} {local_start.hour} {local_start.day} {local_start.month} * "
-        f"{REPO_DIR}/run_pass.sh {pass_info['satellite']} {duration} {basename} >> {log} 2>&1"
+        f"{REPO_DIR}/run_pass.sh {pass_info['freq']} {duration} {basename} >> {log} 2>&1"
     )
 
 

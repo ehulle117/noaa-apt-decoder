@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Compute upcoming NOAA APT satellite passes for a ground location.
+"""Compute upcoming Meteor-M2 LRPT satellite passes for a ground location.
 
 Fetches fresh TLEs from Celestrak and predicts every pass above a minimum
 elevation in the next N hours - no scraping, no browser, just orbital math.
+
+NOAA APT (NOAA-15/18/19) was fully decommissioned in 2025; Meteor-M2-4 is
+the current standard LRPT target (verify at db.satnogs.org before relying
+on this list long-term, since satellites do go dark).
 """
 import datetime
 import sys
@@ -13,9 +17,7 @@ from skyfield.api import EarthSatellite, load, wgs84
 LAT, LON, ALT_M = 42.4430, -76.5019, 120  # Ithaca, NY
 
 SATELLITES = {
-    "noaa15": ("25338", "137.6200M"),
-    "noaa18": ("28654", "137.9125M"),
-    "noaa19": ("33591", "137.1000M"),
+    "meteor-m2-4": ("59051", "137.9000M"),
 }
 
 MIN_ELEVATION_DEG = 20  # lower passes are weak/noisy for a fixed antenna
@@ -39,9 +41,12 @@ def upcoming_passes(hours: int = 24) -> list[dict]:
         sat = EarthSatellite(line1, line2, sat_key, ts)
 
         t, events = sat.find_events(observer, now, end, altitude_degrees=MIN_ELEVATION_DEG)
-        # events: 0=rise above min elevation, 1=culminate, 2=set below min elevation
-        for i in range(0, len(events) - 2, 3):
-            if events[i] != 0 or events[i + 2] != 2:
+        # events: 0=rise above min elevation, 1=culminate, 2=set below min elevation.
+        # The first/last pass in the window may be clipped (missing its rise
+        # or set), so scan for consecutive 0,1,2 triplets rather than assuming
+        # every window starts aligned on a rise.
+        for i in range(len(events) - 2):
+            if events[i] != 0 or events[i + 1] != 1 or events[i + 2] != 2:
                 continue
             rise_t, culminate_t, set_t = t[i], t[i + 1], t[i + 2]
             alt, _, _ = (sat - observer).at(culminate_t).altaz()
