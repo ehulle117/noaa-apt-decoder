@@ -7,7 +7,10 @@ Example: python3 capture_lrpt.py 137.9M 600 pass.raw
 import subprocess
 import sys
 
-SAMPLE_RATE = 140000  # Hz; wide enough for 72k/80k baud LRPT with headroom
+# RTL-SDR only accepts sample rates in ~225001-300000 or ~900001-3200000 Hz
+# (hardware gap in between); 140000 silently falls back to something else.
+# 250000 stays in the low valid range with headroom for 72k/80k baud LRPT.
+SAMPLE_RATE = 250000
 
 
 def capture(freq: str, duration: int, out_raw: str) -> None:

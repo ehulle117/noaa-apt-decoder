@@ -2,6 +2,7 @@
 # Capture + decode + post one LRPT pass, then remove its own one-shot cron
 # line - always, even on failure, so a bad pass doesn't leave a stale entry.
 set -e
+export PATH="/usr/local/bin:$PATH"  # cron's minimal PATH lacks /usr/local/bin, where meteor_demod/meteor_decode live
 cd "$(dirname "$0")"
 source venv/bin/activate
 

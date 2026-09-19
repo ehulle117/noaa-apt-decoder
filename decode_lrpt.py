@@ -14,7 +14,7 @@ import tempfile
 from PIL import Image
 
 DEFAULT_SYMRATE = 72000
-DEFAULT_SAMPLERATE = 140000
+DEFAULT_SAMPLERATE = 250000  # must match capture_lrpt.py's SAMPLE_RATE
 
 
 def decode(raw_path: str, png_path: str, symrate: int = DEFAULT_SYMRATE,
